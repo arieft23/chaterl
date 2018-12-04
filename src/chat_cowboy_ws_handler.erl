@@ -26,6 +26,8 @@ websocket_handle({text, Msg}, Req, State) ->
   {ok, {Type, Msg1}} = parse_message(Msg),
   case Type of
       <<"setname">> ->
+        NewState = #state{name = State#state.name, username=Msg1 , handler = State#state.handler},
+        ebus:pub(?CHATROOM_NAME, {State#state.name, <<"Melakukan pergantian nama">>, State#state.username}),
         {ok, Req, NewState};
       <<"chat">> ->
         ebus:pub(?CHATROOM_NAME, {State#state.name, Msg1, State#state.username}),
