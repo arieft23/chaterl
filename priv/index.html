@@ -47,15 +47,27 @@
       function sendMessage() {
         if(websocket.readyState == websocket.OPEN){
           var txt = jQuery("#textToSend").val();
-          websocket.send(txt);
+          console.log(JSON.stringify({"type" : "chat", "msg": txt}));
+          websocket.send(JSON.stringify({"type" : "chat", "msg": txt}));
           jQuery("#textToSend").val("");
         } else {
            showAlert('<span style="color: red;">ERROR: websocket is not ready</span>');
         };
       };
 
+      function setName(){
+        if(websocket.readyState == websocket.OPEN){
+          var name = jQuery("#username").val();
+          console.log(JSON.stringify({"type" : "setname", "msg": name}));
+          websocket.send(JSON.stringify({"type" : "setname", "msg": name}));
+          jQuery("#username").val("");
+        } else {
+           showAlert('<span style="color: red;">ERROR: websocket is not ready</span>');
+        };
+      }
+
       function showMessage(data) {
-        jQuery('#chatContainer').append('<div>' + data.sender + ' -> ' + data.msg + '</div>');
+        jQuery('#chatContainer').append('<div>' + data.sender + " " + data.username + ' -> ' + data.msg + '</div>');
       };
 
       function showAlert(txt) {
@@ -74,7 +86,14 @@
   <body>
     <div id="alertContainer"></div>
     <input id="connectButton" type="button" value="Join the Chat Room!" onclick="connect();"/>
-
+    <form onsubmit="setName(); return false;">
+      <span>
+        <input id="username" type="text" />
+      </span>
+      <span>
+        <input type="submit" value="Set Name"/> 
+      </span>
+    </form>
     <div id="roomContainer">
       <div id="chatContainer"></div>
       <form onsubmit="sendMessage(); return false;">
