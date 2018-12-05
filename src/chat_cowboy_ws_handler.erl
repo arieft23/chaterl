@@ -25,12 +25,16 @@ websocket_init(_Type, Req, _Opts) ->
 websocket_handle({text, Msg}, Req, State) ->
   {ok, {Type, Msg1}} = parse_message(Msg),
   case Type of
+      <<"initname">> ->
+          NewState = #state{name = State#state.name, username=Msg1 , handler = State#state.handler},
+          ebus:pub(?CHATROOM_NAME, {<<"System:">>, <<"Bergabung chat">>, Msg1}),
+          {ok, Req, NewState};
       <<"setname">> ->
         NewState = #state{name = State#state.name, username=Msg1 , handler = State#state.handler},
-        ebus:pub(?CHATROOM_NAME, {State#state.name, <<"Melakukan pergantian nama">>, State#state.username}),
+        ebus:pub(?CHATROOM_NAME, {State#state.username, Msg1, <<"Melakukan Ganti Nama Menjadi">>}),
         {ok, Req, NewState};
       <<"chat">> ->
-        ebus:pub(?CHATROOM_NAME, {State#state.name, Msg1, State#state.username}),
+        ebus:pub(?CHATROOM_NAME, {Msg1, State#state.username}),
         {ok, Req, State}
   end;
   
@@ -39,6 +43,8 @@ websocket_handle(_Data, Req, State) ->
 
 websocket_info({message_published, {Sender, Msg, Username}}, Req, State) ->
   {reply, {text, jiffy:encode({[{sender, Sender}, {username, Username}, {msg, Msg}]})}, Req, State};
+websocket_info({message_published, {Msg, Username}}, Req, State) ->
+    {reply, {text, jiffy:encode({[{sender, ""}, {username, Username}, {msg, Msg}]})}, Req, State};    
 websocket_info(_Info, Req, State) ->
   {ok, Req, State}.
 
