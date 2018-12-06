@@ -79,7 +79,8 @@
     }
 
     function showMessage(data) {
-      jQuery('#chatContainer').append('<div>' + data.sender + " " + data.username + ' -> ' + data.msg + '</div>');
+      username = data.username != undefined ? data.username : "";
+      jQuery('#chatContainer').append('<div>' + data.sender + " " + username + ' -> ' + data.msg + '</div>');
     };
 
     function showAlert(txt) {
